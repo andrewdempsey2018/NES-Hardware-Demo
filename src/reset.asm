@@ -1,7 +1,7 @@
 .include "constants.inc"
 
 .segment "ZEROPAGE"
-.importzp x_pos, y_pos
+.importzp player_x, player_y
 
 .segment "CODE"
 .import main
@@ -23,11 +23,11 @@ clear_oam:
 	INX
 	BNE clear_oam
 
-  ; initialise x_pos and y_pos to center of screen
+  ; initialise player_x and player_y to center of screen
   LDA #$80
-  STA x_pos
+  STA player_x
   LDA #$78
-  STA y_pos
+  STA player_y
 
 vblankwait:
   BIT PPUSTATUS

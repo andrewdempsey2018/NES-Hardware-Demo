@@ -5,12 +5,12 @@
 .import read_controller1
 
 .segment "ZEROPAGE"
-x_pos: .res 1
-y_pos: .res 1
+player_x: .res 1
+player_y: .res 1
 sleeping: .res 1
 world: .res 2
 pad1: .res 1
-.exportzp x_pos, y_pos, pad1
+.exportzp player_x, player_y, pad1
 
 .segment "CODE"
 .proc irq_handler
@@ -47,19 +47,54 @@ pad1: .res 1
   RTI
 .endproc
 
-.proc move_square
+.proc draw_ship
 
-  LDA y_pos
+  LDA player_y
   STA $0200
   LDA #$01
   STA $0201
   LDA #$01
   STA $0202
-  LDX x_pos
-  INX
-  STX x_pos
-  STX $0203
+  LDA player_x
+  STA $0203
 
+  RTS
+.endproc
+
+.proc move_ship
+  PHP  ; Start by saving registers,
+  PHA  ; as usual.
+  TXA
+  PHA
+  TYA
+  PHA
+
+  LDA pad1        ; Load button presses
+  AND #BTN_LEFT   ; Filter out all but Left
+  BEQ check_right ; If result is zero, left not pressed
+  DEC player_x  ; If the branch is not taken, move player left
+check_right:
+  LDA pad1
+  AND #BTN_RIGHT
+  BEQ check_up
+  INC player_x
+check_up:
+  LDA pad1
+  AND #BTN_UP
+  BEQ check_down
+  DEC player_y
+check_down:
+  LDA pad1
+  AND #BTN_DOWN
+  BEQ done_checking
+  INC player_y
+done_checking:
+  PLA ; Done with updates, restore registers
+  TAY ; and return to where we called this
+  PLA
+  TAX
+  PLA
+  PLP
   RTS
 .endproc
 
@@ -120,8 +155,9 @@ doneLoadingWorld:
 
 mainloop:
 
-  JSR move_square
+  JSR move_ship
   JSR read_controller1
+  JSR draw_ship
 
   ;loop
   INC sleeping
