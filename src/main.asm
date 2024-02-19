@@ -2,13 +2,15 @@
 .include "header.inc"
 
 .import reset_handler
+.import read_controller1
 
 .segment "ZEROPAGE"
 x_pos: .res 1
 y_pos: .res 1
 sleeping: .res 1
 world: .res 2
-.exportzp x_pos, y_pos
+pad1: .res 1
+.exportzp x_pos, y_pos, pad1
 
 .segment "CODE"
 .proc irq_handler
@@ -119,6 +121,7 @@ doneLoadingWorld:
 mainloop:
 
   JSR move_square
+  JSR read_controller1
 
   ;loop
   INC sleeping
