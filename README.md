@@ -1,5 +1,7 @@
 # NES Hardware Demo
 
+![screensot](readme_files/scr1.png)
+
 ### Controls
 
 U/D/L/R - move ship
